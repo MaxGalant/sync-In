@@ -23,7 +23,7 @@ async function bootstrap() {
     .setTitle('Sync In')
     .setDescription('The Sync In is Hroza-bydlo team product')
     .setVersion('1.0')
-    .addTag('Sync In A')
+    .addTag('Sync In')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

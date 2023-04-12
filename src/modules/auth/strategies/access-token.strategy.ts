@@ -2,12 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { CustomConfigService } from '../../../config/customConfig.service';
+import { AccessTokenOutputDto } from '../../../../utills/access-token-output.dto';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(
-    private readonly configService: CustomConfigService,
-  ) {
+  constructor(private readonly configService: CustomConfigService) {
     const tokenConfig = configService.getAccessTokenConfig();
 
     super({
@@ -19,8 +18,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: any): Promise<any> {
-
-  return payload
+  async validate(payload: any): Promise<AccessTokenOutputDto> {
+    return payload.sub;
   }
 }

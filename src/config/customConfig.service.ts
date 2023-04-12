@@ -56,7 +56,7 @@ export class CustomConfigService {
   }
 
   public getAccessTokenPublicKey(): string {
-    const filePath = `${__dirname}/../../keys/public.pem`;
+    const filePath = `${__dirname}/../../../keys/public.pem`;
 
     if (!fs.existsSync(filePath)) {
       return this.getEnvVariableValue('PUBLIC_KEY');
@@ -64,8 +64,6 @@ export class CustomConfigService {
 
     return fs.readFileSync(filePath, 'utf-8');
   }
-
-
 }
 const configService = new CustomConfigService(process.env);
 
