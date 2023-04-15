@@ -9,6 +9,10 @@ import {
   IFriendRequestRepository,
 } from './repository';
 import { FriendStatusEnum } from './entity';
+import {
+  IUserRepository,
+  UserRepository,
+} from '../user/repository/user.repository';
 
 export interface IFriendsService {
   sendRequest(
@@ -48,6 +52,8 @@ export class FriendsService implements IFriendsService {
     private readonly friendRepository: IFriendRepository,
     @InjectRepository(FriendRequestRepository)
     private readonly friendRequestRepository: IFriendRequestRepository,
+    @InjectRepository(UserRepository)
+    private readonly userRepository: IUserRepository,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -66,6 +72,16 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
+      const friend = await this.userRepository.findOneById(friendId);
+
+      if (!friend) {
+        return new ErrorDto(
+          404,
+          'Not Found',
+          `User with id:${friendId} doesn't exist`,
+        );
+      }
+
       let friendCouple = await this.friendRepository.findOneByUserIdAndFriendId(
         userId,
         friendId,
@@ -255,6 +271,16 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
+      const friend = await this.userRepository.findOneById(friendId);
+
+      if (!friend) {
+        return new ErrorDto(
+          404,
+          'Not Found',
+          `User with id:${friendId} doesn't exist`,
+        );
+      }
+
       const friendCouple =
         await this.friendRepository.findOneAcceptedByUserIdAndFriendId(
           userId,
@@ -315,6 +341,16 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
+      const friend = await this.userRepository.findOneById(friendId);
+
+      if (!friend) {
+        return new ErrorDto(
+          404,
+          'Not Found',
+          `User with id:${friendId} doesn't exist`,
+        );
+      }
+
       const isUserBlocked = await this.friendRepository.isUserBlocked(
         friendId,
         userId,
@@ -394,6 +430,16 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
+      const friend = await this.userRepository.findOneById(friendId);
+
+      if (!friend) {
+        return new ErrorDto(
+          404,
+          'Not Found',
+          `User with id:${friendId} doesn't exist`,
+        );
+      }
+
       const friendCouple =
         await this.friendRepository.findOneByUserIdAndFriendId(
           userId,
