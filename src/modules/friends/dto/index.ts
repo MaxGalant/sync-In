@@ -1,3 +1,3 @@
-import { FriendsRequestDto } from './friends-request.dto';
+import { InputFriendDto } from './input-friend.dto';
 
-export { FriendsRequestDto };
+export { InputFriendDto };

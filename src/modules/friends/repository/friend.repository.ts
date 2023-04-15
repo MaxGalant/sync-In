@@ -5,6 +5,11 @@ import { InjectDataSource } from '@nestjs/typeorm';
 
 export interface IFriendRepository {
   findOneByUserIdAndFriendId(userId: string, friendId: string): Promise<Friend>;
+  findOneAcceptedByUserIdAndFriendId(
+    userId: string,
+    friendId: string,
+  ): Promise<Friend>;
+  findManyAcceptedByUserId(userId: string): Promise<Friend[]>;
 
   isUserBlocked(userId: string, friendId: string): Promise<boolean>;
 
@@ -12,6 +17,7 @@ export interface IFriendRepository {
     userId: string,
     friendId: string,
     manager: EntityManager,
+    data?: any,
   ): Promise<Friend>;
 
   updateStatus(
@@ -39,10 +45,11 @@ export class FriendRepository
     userId: string,
     friendId: string,
     manager: EntityManager,
+    data?: any,
   ): Promise<Friend> {
     this.logger.log(`Saving the friend with id:${friendId}`);
 
-    return manager.save(Friend, { userId, friendId });
+    return manager.save(Friend, { userId, friendId, ...data });
   }
 
   async updateStatus(
@@ -69,7 +76,34 @@ export class FriendRepository
     });
   }
 
+  async findOneAcceptedByUserIdAndFriendId(
+    userId: string,
+    friendId: string,
+  ): Promise<Friend> {
+    this.logger.log(
+      `Finding the accepted friend's couple by user with id:${userId} and friend id:${friendId}`,
+    );
+
+    return this.findOne({
+      where: { userId, friendId, status: FriendStatusEnum.ACCEPTED },
+    });
+  }
+
+  async findManyAcceptedByUserId(userId: string): Promise<Friend[]> {
+    this.logger.log(
+      `Finding the accepted friend's couple by user with id:${userId} `,
+    );
+
+    return this.find({
+      where: { userId, status: FriendStatusEnum.ACCEPTED },
+    });
+  }
+
   async isUserBlocked(userId: string, friendId: string): Promise<boolean> {
+    this.logger.log(
+      `Finding if friend with id:${friendId} is blocked by user with id:${userId}`,
+    );
+
     return this.exist({
       where: {
         userId: friendId,

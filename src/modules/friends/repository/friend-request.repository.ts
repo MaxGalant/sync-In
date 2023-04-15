@@ -10,6 +10,7 @@ export interface IFriendRequestRepository {
   ): Promise<FriendRequest>;
 
   findOneByIdAndUserId(id: string, userId: string): Promise<FriendRequest>;
+  findManyByUserId(userId: string): Promise<FriendRequest[]>;
 
   deleteById(id: string, manager: EntityManager): Promise<DeleteResult>;
 }
@@ -47,6 +48,19 @@ export class FriendRequestRepository
 
     return this.findOne({
       where: { id, friendCouple: { userId } },
+      relations: ['friendCouple'],
+    });
+  }
+
+  async findManyByUserId(userId: string): Promise<FriendRequest[]> {
+    this.logger.log(`Finding user's requests`);
+
+    return this.find({
+      where: {
+        friendCouple: {
+          userId,
+        },
+      },
       relations: ['friendCouple'],
     });
   }
