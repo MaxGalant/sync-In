@@ -10,6 +10,7 @@ import { FriendsModule } from './modules/friends/friends.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { User } from './modules/user/entity';
+import { GroupsModule } from './modules/groups/groups.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { User } from './modules/user/entity';
     FriendsModule,
     AuthModule,
     UserModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

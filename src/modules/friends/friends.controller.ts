@@ -51,7 +51,7 @@ export class FriendsController {
   })
   @ApiInternalServerErrorResponse({
     description:
-      'Something went wrong while sending friend request to user with id',
+      'Something went wrong while sending friend request to users with id',
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)
@@ -165,7 +165,7 @@ export class FriendsController {
   }
 
   @ApiOperation({
-    summary: 'Block a user',
+    summary: 'Block a users',
     description: 'Returns string and an ok status or error',
   })
   @ApiBody({
@@ -185,7 +185,7 @@ export class FriendsController {
     type: ErrorDto,
   })
   @ApiInternalServerErrorResponse({
-    description: 'Something went wrong while blocking the user with id',
+    description: 'Something went wrong while blocking the users with id',
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)
@@ -200,7 +200,7 @@ export class FriendsController {
   }
 
   @ApiOperation({
-    summary: 'Unblock a user',
+    summary: 'Unblock a users',
     description: 'Returns string and an ok status or error',
   })
   @ApiBody({
@@ -212,7 +212,7 @@ export class FriendsController {
     type: SuccessResponseDto,
   })
   @ApiNotFoundResponse({
-    description: "You don't have a blocked user",
+    description: "You don't have a blocked users",
     type: ErrorDto,
   })
   @ApiUnauthorizedResponse({
@@ -220,7 +220,7 @@ export class FriendsController {
     type: ErrorDto,
   })
   @ApiInternalServerErrorResponse({
-    description: 'Something went wrong while blocking the user with id',
+    description: 'Something went wrong while blocking the users with id',
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)
@@ -235,7 +235,7 @@ export class FriendsController {
   }
 
   @ApiOperation({
-    summary: "Get a user's requests",
+    summary: "Get a users's requests",
     description: 'Returns requests and an ok status or error',
   })
   @ApiOkResponse({
@@ -247,7 +247,7 @@ export class FriendsController {
     type: ErrorDto,
   })
   @ApiInternalServerErrorResponse({
-    description: "Something went wrong while fetching user's requests",
+    description: "Something went wrong while fetching users's requests",
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)
@@ -261,7 +261,7 @@ export class FriendsController {
   }
 
   @ApiOperation({
-    summary: "Get a user's friends",
+    summary: "Get a users's friends",
     description: 'Returns friends and an ok status or error',
   })
   @ApiOkResponse({
@@ -273,7 +273,7 @@ export class FriendsController {
     type: ErrorDto,
   })
   @ApiInternalServerErrorResponse({
-    description: "Something went wrong while friends user's requests",
+    description: "Something went wrong while friends users's requests",
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)

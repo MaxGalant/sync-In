@@ -2,37 +2,35 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Group } from '../../groups/entity/group.entity';
+import { User } from '../../user/entity';
 
 @Entity()
-export class User {
+export class Group {
   @ApiProperty()
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ApiProperty()
   @Column()
-  first_name: string;
+  ownerId: string;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  imageUrl: string;
 
   @ApiProperty()
   @Column()
-  second_name: string;
+  name: string;
 
   @ApiProperty()
-  @Column({ nullable: true })
-  image_url: string;
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  nickname: string;
-
-  @Column({ default: false })
-  active: boolean;
+  @Column()
+  created_by: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -46,6 +44,7 @@ export class User {
   })
   updated_at: Date;
 
-  @ManyToMany(() => Group)
-  groups: Group[];
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'group_user' })
+  users: User[];
 }
