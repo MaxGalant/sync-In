@@ -8,11 +8,13 @@ import { CustomConfigService } from './config/customConfig.service';
 import { Friend, FriendRequest } from './modules/friends/entity';
 import { FriendsModule } from './modules/friends/friends.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { User } from './modules/user/entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Friend, FriendRequest]),
+    TypeOrmModule.forFeature([Friend, FriendRequest, User]),
     TypeOrmModule.forRootAsync({
       imports: [CustomConfigModule],
       inject: [CustomConfigService],
@@ -22,6 +24,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     FriendsModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

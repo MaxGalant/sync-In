@@ -1,12 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { CustomConfigService } from '../../../config/customConfig.service';
 import { AccessTokenOutputDto } from '../../../../utills/access-token-output.dto';
+import {
+  IUserRepository,
+  UserRepository,
+} from '../../user/repository/user.repository';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private readonly configService: CustomConfigService) {
+  constructor(
+    @InjectRepository(UserRepository)
+    private readonly userRepository: IUserRepository,
+    private readonly configService: CustomConfigService,
+  ) {
     const tokenConfig = configService.getAccessTokenConfig();
 
     super({
@@ -19,6 +28,12 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: any): Promise<AccessTokenOutputDto> {
+    const user = await this.userRepository.findOneById(payload.sub.id);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
     return payload.sub;
   }
 }

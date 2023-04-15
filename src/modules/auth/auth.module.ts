@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AccessTokenStrategy } from './strategies';
 import { CustomConfigModule } from '../../config/customConfig.module';
+import { UserRepository } from '../user/repository/user.repository';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { CustomConfigModule } from '../../config/customConfig.module';
     CustomConfigModule,
   ],
   controllers: [],
-  providers: [AccessTokenStrategy],
+  providers: [AccessTokenStrategy, UserRepository],
 })
 export class AuthModule {}
