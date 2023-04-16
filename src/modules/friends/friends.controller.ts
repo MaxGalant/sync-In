@@ -87,9 +87,9 @@ export class FriendsController {
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)
-  @Patch('accept/:request_id')
+  @Patch('accept/:id')
   acceptFriendRequest(
-    @Param('request_id') requestId: string,
+    @Param('id') requestId: string,
     @Req() req: PayloadRequestInterface,
   ): Promise<SuccessResponseDto | ErrorDto> {
     const { user } = req;
@@ -119,9 +119,9 @@ export class FriendsController {
     type: ErrorDto,
   })
   @UseGuards(AccessTokenGuard)
-  @Patch('decline/:request_id')
+  @Patch('decline/:id')
   declineFriendRequest(
-    @Param('request_id') requestId: string,
+    @Param('id') requestId: string,
     @Req() req: PayloadRequestInterface,
   ): Promise<SuccessResponseDto | ErrorDto> {
     const { user } = req;

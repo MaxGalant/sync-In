@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   ManyToMany,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Group } from '../../groups/entity/group.entity';
+import { Friend } from '../../friends/entity';
 
 @Entity()
 export class User {
@@ -45,6 +47,9 @@ export class User {
     default: () => `CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Kiev'`,
   })
   updated_at: Date;
+
+  @OneToMany(() => Friend, (friend) => friend.user)
+  friends: Friend[];
 
   @ManyToMany(() => Group)
   groups: Group[];

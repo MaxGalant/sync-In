@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
@@ -46,5 +47,6 @@ export class Group {
 
   @ManyToMany(() => User)
   @JoinTable({ name: 'group_user' })
+  @JoinColumn({})
   users: User[];
 }

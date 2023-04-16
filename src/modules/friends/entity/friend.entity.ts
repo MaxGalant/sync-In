@@ -2,23 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { FriendStatusEnum } from './friend-status.enum';
-import { FriendRequest } from './friend-request.entity';
+import { User } from '../../user/entity';
 
 @Entity()
 export class Friend {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @ApiProperty()
-  @Column()
-  userId: string;
 
   @ApiProperty()
   @Column()
@@ -45,6 +41,6 @@ export class Friend {
   })
   updated_at: Date;
 
-  @OneToOne(() => FriendRequest, (request) => request.friendCouple) // specify inverse side as a second parameter
-  request: FriendRequest;
+  @ManyToOne(() => User, (user) => user.friends)
+  user: User;
 }

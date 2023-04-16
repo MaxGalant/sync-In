@@ -4,12 +4,20 @@ import { Friend, FriendStatusEnum } from '../entity';
 import { InjectDataSource } from '@nestjs/typeorm';
 
 export interface IFriendRepository {
+  findManyPendingFriendsWithCommonFriends(userId: string): Promise<Friend[]>;
+
   findOneByUserIdAndFriendId(userId: string, friendId: string): Promise<Friend>;
+
+  findOnePendingByIdAndUserId(id: string, userId: string): Promise<Friend>;
+
   findOneAcceptedByUserIdAndFriendId(
     userId: string,
     friendId: string,
   ): Promise<Friend>;
-  findManyAcceptedByUserId(userId: string): Promise<Friend[]>;
+
+  findManyAcceptedFriendsByUserIdWithCommonFriends(
+    userId: string,
+  ): Promise<Friend[]>;
 
   isUserBlocked(userId: string, friendId: string): Promise<boolean>;
 
@@ -49,7 +57,7 @@ export class FriendRepository
   ): Promise<Friend> {
     this.logger.log(`Saving the friend with id:${friendId}`);
 
-    return manager.save(Friend, { userId, friendId, ...data });
+    return manager.save(Friend, { user: userId, friendId, ...data });
   }
 
   async updateStatus(
@@ -71,8 +79,22 @@ export class FriendRepository
     );
 
     return this.findOne({
-      where: { userId, friendId },
-      relations: ['request'],
+      where: { user: { id: userId }, friendId },
+      relations: ['user'],
+    });
+  }
+
+  async findOnePendingByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<Friend> {
+    this.logger.log(
+      `Finding the pending friend's couple by id:${id} and user with id:${userId}`,
+    );
+
+    return this.findOne({
+      where: { friendId: userId, id, status: FriendStatusEnum.PENDING },
+      relations: ['user'],
     });
   }
 
@@ -85,18 +107,61 @@ export class FriendRepository
     );
 
     return this.findOne({
-      where: { userId, friendId, status: FriendStatusEnum.ACCEPTED },
+      where: {
+        user: { id: userId },
+        friendId,
+        status: FriendStatusEnum.ACCEPTED,
+      },
     });
   }
 
-  async findManyAcceptedByUserId(userId: string): Promise<Friend[]> {
+  async findManyPendingFriendsWithCommonFriends(
+    userId: string,
+  ): Promise<Friend[]> {
     this.logger.log(
-      `Finding the accepted friend's couple by user with id:${userId} `,
+      `Finding pending friend couples for a user with id:${userId} and with common friends`,
     );
-
-    return this.find({
-      where: { userId, status: FriendStatusEnum.ACCEPTED },
-    });
+    return await this.query(
+      `SELECT friend.id, u.id as "friendId",u.first_name as "firstName",u.second_name as "secondName", u.image_url as "imageUrl",
+              (SELECT COUNT(*)
+               FROM (SELECT DISTINCT "friendId"
+                     FROM friend
+                     WHERE "userId" = 'eaaebe3d-3b8f-4694-bd8c-7a9daf8a5765'
+                       AND status = 'accepted'
+                     INTERSECT
+                     SELECT DISTINCT "friendId"
+                     FROM friend
+                     WHERE "userId" = u.id
+                       AND status = 'accepted') AS common_friends) AS "commonFriends"
+       FROM friend
+                LEFT JOIN "user" u ON u.id = friend."friendId"
+       WHERE friend."userId" = '${userId}'
+         AND friend.status = 'pending'`,
+    );
+  }
+  async findManyAcceptedFriendsByUserIdWithCommonFriends(
+    userId: string,
+  ): Promise<Friend[]> {
+    this.logger.log(
+      `Finding accepted friend couples for a user with id:${userId} and with common friends`,
+    );
+    return await this.query(
+      `SELECT friend.id, u.id as "friendId",u.first_name as "firstName",u.second_name as "secondName", u.image_url as "imageUrl",
+              (SELECT COUNT(*)
+               FROM (SELECT DISTINCT "friendId"
+                     FROM friend
+                     WHERE "userId" = 'eaaebe3d-3b8f-4694-bd8c-7a9daf8a5765'
+                       AND status = 'accepted'
+                     INTERSECT
+                     SELECT DISTINCT "friendId"
+                     FROM friend
+                     WHERE "userId" = u.id
+                       AND status = 'accepted') AS common_friends) AS "commonFriends"
+       FROM friend
+                LEFT JOIN "user" u ON u.id = friend."friendId"
+       WHERE friend."userId" = '${userId}'
+         AND friend.status = 'accepted'`,
+    );
   }
 
   async isUserBlocked(userId: string, friendId: string): Promise<boolean> {
@@ -106,7 +171,7 @@ export class FriendRepository
 
     return this.exist({
       where: {
-        userId: friendId,
+        user: { id: friendId },
         friendId: userId,
         status: FriendStatusEnum.BLOCKED,
       },

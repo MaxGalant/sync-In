@@ -2,12 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ErrorDto, SuccessResponseDto } from '../../../utills';
 import { DataSource } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FriendRepository,
-  FriendRequestRepository,
-  IFriendRepository,
-  IFriendRequestRepository,
-} from './repository';
+import { FriendRepository, IFriendRepository } from './repository';
 import { FriendStatusEnum } from './entity';
 import {
   IUserRepository,
@@ -50,8 +45,6 @@ export class FriendsService implements IFriendsService {
   constructor(
     @InjectRepository(FriendRepository)
     private readonly friendRepository: IFriendRepository,
-    @InjectRepository(FriendRequestRepository)
-    private readonly friendRequestRepository: IFriendRequestRepository,
     @InjectRepository(UserRepository)
     private readonly userRepository: IUserRepository,
     private readonly dataSource: DataSource,
@@ -72,6 +65,14 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
+      if (friendId === userId) {
+        return new ErrorDto(
+          409,
+          'Conflict',
+          `You can't send request to yourself`,
+        );
+      }
+
       const friend = await this.userRepository.findOneById(friendId);
 
       if (!friend) {
@@ -80,23 +81,6 @@ export class FriendsService implements IFriendsService {
           'Not Found',
           `User with id:${friendId} doesn't exist`,
         );
-      }
-
-      let friendCouple = await this.friendRepository.findOneByUserIdAndFriendId(
-        userId,
-        friendId,
-      );
-
-      if (!friendCouple) {
-        friendCouple = await this.friendRepository.saveFriend(
-          userId,
-          friendId,
-          manager,
-        );
-      }
-
-      if (friendCouple.status === FriendStatusEnum.ACCEPTED) {
-        return new ErrorDto(409, 'Conflict', `We already are friends`);
       }
 
       const isBlocked = await this.friendRepository.isUserBlocked(
@@ -108,14 +92,37 @@ export class FriendsService implements IFriendsService {
         return new ErrorDto(409, 'Conflict', `User has blocked you`);
       }
 
-      if (friendCouple.request) {
-        return new ErrorDto(409, 'Conflict', `You already have sent request`);
+      const friendCouple =
+        await this.friendRepository.findOneByUserIdAndFriendId(
+          userId,
+          friendId,
+        );
+
+      if (friendCouple) {
+        if (friendCouple.status === FriendStatusEnum.PENDING) {
+          return new ErrorDto(409, 'Conflict', `You already have sent request`);
+        }
+
+        if (friendCouple.status === FriendStatusEnum.ACCEPTED) {
+          return new ErrorDto(409, 'Conflict', `You already are friends`);
+        }
+
+        await this.friendRepository.updateStatus(
+          friendCouple.id,
+          FriendStatusEnum.PENDING,
+          manager,
+        );
+
+        await queryRunner.commitTransaction();
+
+        return {
+          statusCode: 200,
+          message: 'Friend request was successfully sent',
+          data: {},
+        };
       }
 
-      await this.friendRequestRepository.saveFriendRequest(
-        friendCouple,
-        manager,
-      );
+      await this.friendRepository.saveFriend(userId, friendId, manager);
 
       await queryRunner.commitTransaction();
 
@@ -146,7 +153,7 @@ export class FriendsService implements IFriendsService {
     requestId: string,
     userId: string,
   ): Promise<SuccessResponseDto | ErrorDto> {
-    this.logger.log('Accepting the friend request with id:${requestId}');
+    this.logger.log(`Accepting the friend request with id:${requestId}`);
 
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -157,22 +164,21 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
-      const request = await this.friendRequestRepository.findOneByIdAndUserId(
-        requestId,
-        userId,
-      );
+      const friendCouple =
+        await this.friendRepository.findOnePendingByIdAndUserId(
+          requestId,
+          userId,
+        );
 
-      if (!request) {
+      if (!friendCouple) {
         return new ErrorDto(404, 'Not Found', `The request doesn't exist`);
       }
 
       await this.friendRepository.updateStatus(
-        request.friendCouple.id,
+        friendCouple.id,
         FriendStatusEnum.ACCEPTED,
         manager,
       );
-
-      await this.friendRequestRepository.deleteById(request.id, manager);
 
       await queryRunner.commitTransaction();
 
@@ -214,22 +220,21 @@ export class FriendsService implements IFriendsService {
     await queryRunner.startTransaction();
 
     try {
-      const request = await this.friendRequestRepository.findOneByIdAndUserId(
-        requestId,
-        userId,
-      );
+      const friendCouple =
+        await this.friendRepository.findOnePendingByIdAndUserId(
+          requestId,
+          userId,
+        );
 
-      if (!request) {
+      if (!friendCouple) {
         return new ErrorDto(404, 'Not Found', `The request doesn't exist`);
       }
 
       await this.friendRepository.updateStatus(
-        request.friendCouple.id,
+        friendCouple.id,
         FriendStatusEnum.DECLINED,
         manager,
       );
-
-      await this.friendRequestRepository.deleteById(request.id, manager);
 
       await queryRunner.commitTransaction();
 
@@ -491,9 +496,10 @@ export class FriendsService implements IFriendsService {
     this.logger.log(`Fetch the user's requests`);
 
     try {
-      const requests = await this.friendRequestRepository.findManyByUserId(
-        userId,
-      );
+      const requests =
+        await this.friendRepository.findManyPendingFriendsWithCommonFriends(
+          userId,
+        );
 
       return {
         statusCode: 200,
@@ -518,9 +524,10 @@ export class FriendsService implements IFriendsService {
     this.logger.log(`Fetch the user's friends`);
 
     try {
-      const friends = await this.friendRepository.findManyAcceptedByUserId(
-        userId,
-      );
+      const friends =
+        await this.friendRepository.findManyAcceptedFriendsByUserIdWithCommonFriends(
+          userId,
+        );
 
       return {
         statusCode: 200,
