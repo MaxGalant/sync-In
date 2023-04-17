@@ -2,14 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Group } from '../../groups/entity/group.entity';
 import { Friend } from '../../friends/entity';
+import { GroupUser } from '../../groups/entity';
 
 @Entity()
 export class User {
@@ -51,6 +50,6 @@ export class User {
   @OneToMany(() => Friend, (friend) => friend.user)
   friends: Friend[];
 
-  @ManyToMany(() => Group)
-  groups: Group[];
+  @OneToMany(() => GroupUser, (groupUser) => groupUser.user)
+  groups: GroupUser[];
 }

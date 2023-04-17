@@ -11,6 +11,11 @@ import {
   IUserRepository,
   UserRepository,
 } from '../user/repository/user.repository';
+import { GroupUser, GroupUserStatusEnum } from './entity';
+import {
+  GroupsUsersRepository,
+  IGroupsUsersRepository,
+} from './repository/groups-users.repository';
 
 export interface IGroupsService {
   create(
@@ -26,6 +31,8 @@ export class GroupsService implements IGroupsService {
   constructor(
     @InjectRepository(GroupsRepository)
     private readonly groupsRepository: IGroupsRepository,
+    @InjectRepository(GroupsUsersRepository)
+    private readonly groupsUsersRepository: IGroupsUsersRepository,
     @InjectRepository(UserRepository)
     private readonly userRepository: IUserRepository,
     private readonly dataSource: DataSource,
@@ -46,19 +53,34 @@ export class GroupsService implements IGroupsService {
     await queryRunner.startTransaction();
 
     try {
-      const users = createGroupDto.userIds.length
-        ? await this.userRepository.findManyByIds(createGroupDto.userIds)
-        : null;
-
       const createObj = {
         ownerId: userId,
         created_by: userId,
         name: createGroupDto.name,
         imageUrl: createGroupDto.imageUrl,
-        users,
       };
 
       const group = await this.groupsRepository.saveGroup(createObj, manager);
+
+      if (createGroupDto.userIds.length) {
+        createGroupDto.userIds.push(userId);
+
+        const users = await this.userRepository.findManyByIds(
+          createGroupDto.userIds,
+        );
+
+        const usersArr = users.map(
+          (user) =>
+            new GroupUser(
+              user,
+              group,
+              user.id === userId
+                ? GroupUserStatusEnum.ACCEPTED
+                : GroupUserStatusEnum.PENDING,
+            ),
+        );
+        await this.groupsUsersRepository.saveGroupUser(usersArr, manager);
+      }
 
       await queryRunner.commitTransaction();
 

@@ -11,7 +11,7 @@ import { ErrorDto, SuccessResponseDto } from '../../../utills';
 import { AccessTokenGuard } from '../auth/gurds';
 import { PayloadRequestInterface } from '../../../utills/interfaces/payload-request.interface';
 import { CreateGroupDto } from './dto';
-import { GroupsService } from './group.service';
+import { GroupsService } from './groups.service';
 
 @ApiTags('Groups')
 @Controller('group')

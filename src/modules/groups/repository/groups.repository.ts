@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { Group } from '../entity/group.entity';
+import { Group } from '../entity';
 
 export interface IGroupsRepository {
   saveGroup(createData: any, manager: EntityManager): Promise<Group>;

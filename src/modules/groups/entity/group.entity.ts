@@ -2,14 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '../../user/entity';
+import { GroupUser } from './group-user.entity';
 
 @Entity()
 export class Group {
@@ -30,6 +28,10 @@ export class Group {
   name: string;
 
   @ApiProperty()
+  @Column({ default: false })
+  is_active: boolean;
+
+  @ApiProperty()
   @Column()
   created_by: string;
 
@@ -45,8 +47,6 @@ export class Group {
   })
   updated_at: Date;
 
-  @ManyToMany(() => User)
-  @JoinTable({ name: 'group_user' })
-  @JoinColumn({})
-  users: User[];
+  @OneToMany(() => GroupUser, (groupUser) => groupUser.group, { eager: true })
+  users: GroupUser[];
 }
