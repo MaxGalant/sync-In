@@ -16,6 +16,10 @@ import {
   GroupsUsersRepository,
   IGroupsUsersRepository,
 } from './repository/groups-users.repository';
+import {
+  IWeeksRepository,
+  WeeksRepository,
+} from '../weeks/repository/weeks.repository';
 
 export interface IGroupsService {
   create(
@@ -55,6 +59,8 @@ export class GroupsService implements IGroupsService {
     private readonly groupsUsersRepository: IGroupsUsersRepository,
     @InjectRepository(UserRepository)
     private readonly userRepository: IUserRepository,
+    @InjectRepository(WeeksRepository)
+    private readonly weeksRepository: IWeeksRepository,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -73,14 +79,26 @@ export class GroupsService implements IGroupsService {
     await queryRunner.startTransaction();
 
     try {
-      const createObj = {
+      const createObjGroup = {
         ownerId: userId,
         created_by: userId,
         name: createGroupDto.name,
         imageUrl: createGroupDto.imageUrl,
       };
 
-      const group = await this.groupsRepository.saveGroup(createObj, manager);
+      const group = await this.groupsRepository.saveGroup(
+        createObjGroup,
+        manager,
+      );
+
+      const createObjWeek = {
+        group,
+        created_by: userId,
+        name: createGroupDto.name,
+        imageUrl: createGroupDto.imageUrl,
+      };
+
+      await this.weeksRepository.saveWeek(createObjWeek, manager);
 
       if (createGroupDto.userIds.length) {
         createGroupDto.userIds.push(userId);
@@ -231,7 +249,7 @@ export class GroupsService implements IGroupsService {
     this.logger.log(`Get group with id:${groupId}`);
 
     try {
-      const group = await this.groupsRepository.findOneAcceptedByUserId(
+      const group = await this.groupsRepository.findOneAcceptedByIdAndUserId(
         groupId,
         userId,
       );

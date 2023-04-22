@@ -7,7 +7,7 @@ export interface IGroupsRepository {
   saveGroup(createData: any, manager: EntityManager): Promise<Group>;
   findOneByIdAndOwnerId(id: string, ownerId: string): Promise<Group>;
   findManyAcceptedByUserId(userId: string): Promise<Group[]>;
-  findOneAcceptedByUserId(id: string, userId: string): Promise<Group>;
+  findOneAcceptedByIdAndUserId(id: string, userId: string): Promise<Group>;
 }
 
 @Injectable()
@@ -49,13 +49,22 @@ export class GroupsRepository
       },
     });
   }
-  async findOneAcceptedByUserId(id: string, userId: string): Promise<Group> {
+  async findOneAcceptedByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<Group> {
     this.logger.log(`Finding group where id:${id} user with id:${userId}`);
 
     return this.findOne({
       where: {
         id,
         users: { user: { id: userId }, status: GroupUserStatusEnum.ACCEPTED },
+      },
+      relations: ['weeks', 'weeks.tasks'],
+      order: {
+        weeks: {
+          started_at: 'DESC',
+        },
       },
     });
   }

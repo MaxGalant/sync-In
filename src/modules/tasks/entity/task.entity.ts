@@ -2,35 +2,30 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  JoinTable,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { GroupUser } from './group-user.entity';
+import { Day } from '../../days/entity/day.entity';
 import { Week } from '../../weeks/entity/week.entity';
 
 @Entity()
-export class Group {
+export class Task {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ApiProperty()
   @Column()
-  ownerId: string;
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  imageUrl: string;
-
-  @ApiProperty()
-  @Column()
-  name: string;
+  text: string;
 
   @ApiProperty()
   @Column({ default: false })
-  is_active: boolean;
+  is_finished: boolean;
 
   @ApiProperty()
   @Column()
@@ -48,9 +43,11 @@ export class Group {
   })
   updated_at: Date;
 
-  @OneToMany(() => GroupUser, (groupUser) => groupUser.group, { eager: true })
-  users: GroupUser[];
+  @ManyToOne(() => Week, (week) => week.tasks)
+  @JoinTable()
+  week: Week;
 
-  @OneToMany(() => Week, (week) => week.group)
-  weeks: Week[];
+  @OneToOne(() => Day)
+  @JoinColumn()
+  day: Day;
 }

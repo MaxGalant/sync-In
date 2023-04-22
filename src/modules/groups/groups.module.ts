@@ -4,6 +4,7 @@ import { GroupsService } from './groups.service';
 import { GroupsRepository } from './repository/groups.repository';
 import { UserRepository } from '../user/repository/user.repository';
 import { GroupsUsersRepository } from './repository/groups-users.repository';
+import { WeeksRepository } from '../weeks/repository/weeks.repository';
 
 @Module({
   controllers: [GroupsController],
@@ -12,6 +13,7 @@ import { GroupsUsersRepository } from './repository/groups-users.repository';
     GroupsRepository,
     GroupsUsersRepository,
     UserRepository,
+    WeeksRepository,
   ],
 })
 export class GroupsModule {}

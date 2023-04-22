@@ -2,45 +2,39 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  JoinTable,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { GroupUser } from './group-user.entity';
+import { Task } from '../../tasks/entity/task.entity';
 import { Week } from '../../weeks/entity/week.entity';
+import { Event } from '../../events/entity/event.entity';
 
 @Entity()
-export class Group {
+export class Day {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ApiProperty()
-  @Column()
-  ownerId: string;
-
-  @ApiProperty()
-  @Column({ nullable: true })
-  imageUrl: string;
-
-  @ApiProperty()
-  @Column()
-  name: string;
-
-  @ApiProperty()
   @Column({ default: false })
-  is_active: boolean;
-
-  @ApiProperty()
-  @Column()
-  created_by: string;
+  is_finished: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
     default: () => `CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Kiev'`,
   })
-  created_at: Date;
+  started_at: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => `CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Kiev'`,
+  })
+  finished_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
@@ -48,9 +42,14 @@ export class Group {
   })
   updated_at: Date;
 
-  @OneToMany(() => GroupUser, (groupUser) => groupUser.group, { eager: true })
-  users: GroupUser[];
+  @OneToOne(() => Task, (task) => task.day)
+  task: Task;
 
-  @OneToMany(() => Week, (week) => week.group)
-  weeks: Week[];
+  @OneToOne(() => Event)
+  @JoinColumn()
+  event: Event;
+
+  @ManyToOne(() => Week, (week) => week.days)
+  @JoinTable()
+  week: Week;
 }
