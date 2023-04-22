@@ -11,6 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Group } from '../../groups/entity';
 import { Task } from '../../tasks/entity/task.entity';
 import { Day } from '../../days/entity/day.entity';
+import { WeekStatusEnum } from './week-status.enum';
 
 @Entity()
 export class Week {
@@ -19,8 +20,13 @@ export class Week {
   id: string;
 
   @ApiProperty()
-  @Column({ default: false })
-  is_finished: boolean;
+  @Column({
+    type: 'enum',
+    nullable: false,
+    enum: WeekStatusEnum,
+    default: WeekStatusEnum.PENDING,
+  })
+  status: WeekStatusEnum;
 
   @CreateDateColumn({
     type: 'timestamp',

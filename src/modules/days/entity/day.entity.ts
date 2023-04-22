@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Task } from '../../tasks/entity/task.entity';
-import { Week } from '../../weeks/entity/week.entity';
+import { Week } from '../../weeks/entity';
 import { Event } from '../../events/entity/event.entity';
 
 @Entity()
@@ -24,6 +24,10 @@ export class Day {
   @Column({ default: false })
   is_finished: boolean;
 
+  @ApiProperty()
+  @Column()
+  number: number;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => `CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Kiev'`,
@@ -32,7 +36,6 @@ export class Day {
 
   @CreateDateColumn({
     type: 'timestamp',
-    default: () => `CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Kiev'`,
   })
   finished_at: Date;
 
