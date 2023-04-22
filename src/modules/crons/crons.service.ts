@@ -118,5 +118,7 @@ export class CronsService {
     const daysIds = days.map((day) => day.id);
 
     await this.daysRepository.updateDays(daysIds, { event });
+
+    await this.eventsRepository.updateState(event.id);
   }
 }
