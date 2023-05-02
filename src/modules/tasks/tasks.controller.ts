@@ -16,6 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateGroupDto } from '../groups/dto';
@@ -26,6 +27,7 @@ import { CreateTaskDto } from './dto';
 import { UpdateTaskDto } from './dto';
 import { GetTaskDto } from './dto/get-task.dto';
 
+@ApiTags('Tasks')
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
