@@ -2,14 +2,30 @@ version: '3.8'
 services:
   sync-in-db:
     image: postgres
+    networks:
+      - syncIn-main
     environment:
       TZ: "UTC"
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: 'syncIn'
+      POSTGRES_USER: 'max'
+      POSTGRES_PASSWORD: '12345'
     ports:
-      - "${DB_PORT}:5432"
+      - "5434:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+  app-sync:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      -  sync-in-db
+    networks:
+      - syncIn-main
+
 volumes:
   db-data:
+networks:
+  syncIn-main:
+    driver: bridge
