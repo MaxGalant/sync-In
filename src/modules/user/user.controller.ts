@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UpdateUserInfoDto, UserProfileInfoDto } from './dto';
+import { CreateUserDto, UpdateUserInfoDto, UserProfileInfoDto } from './dto';
 import { AccessTokenGuard } from '../auth/gurds';
 import { GetUsersByIdsDto } from './dto/get-users-by-ids.dto';
 import {
@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { ErrorDto } from '../../../utills';
 import { PayloadRequestInterface } from '../../../utills/interfaces/payload-request.interface';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @ApiTags('User')
 @Controller('user')
@@ -126,5 +127,10 @@ export class UserController {
     @Param('id') userId: string,
   ): Promise<UserProfileInfoDto | ErrorDto> {
     return this.userService.getById(userId);
+  }
+
+  @MessagePattern('create_user')
+  async migrateUser(@Payload() data: CreateUserDto): Promise<void> {
+    return this.userService.create(data);
   }
 }

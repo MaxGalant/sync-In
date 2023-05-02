@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   OneToOne,
@@ -13,6 +14,11 @@ export class Event {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty()
+  @Column({ default: false })
+  is_active: boolean;
+
+  @ApiProperty()
   @CreateDateColumn({
     type: 'timestamp',
   })

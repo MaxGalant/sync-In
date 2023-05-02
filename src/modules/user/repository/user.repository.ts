@@ -11,12 +11,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from '../dto';
 
 export interface IUserRepository {
-  saveUser(
-    createUserDto: CreateUserDto,
-    password: string,
-    otp: string,
-    manager: EntityManager,
-  ): Promise<User>;
+  saveUser(createUserDto: CreateUserDto, manager: EntityManager): Promise<User>;
 
   updateFields(
     userId: string,
@@ -45,20 +40,12 @@ export class UserRepository
 
   async saveUser(
     createUserDto: CreateUserDto,
-    password: string,
-    otp: string,
     manager: EntityManager,
   ): Promise<User> {
     this.logger.log('Saving a user');
 
     try {
-      const saveUserObj = {
-        first_name: createUserDto.firstName,
-        second_name: createUserDto.secondName,
-        nickname: createUserDto.nickname,
-      };
-
-      return manager.save(User, saveUserObj);
+      return manager.save(User, createUserDto);
     } catch (error) {
       this.logger.error('Something went wrong when save user', error?.stack);
     }
