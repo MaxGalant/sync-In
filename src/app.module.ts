@@ -12,6 +12,7 @@ import { GroupsModule } from './modules/groups/groups.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronsModule } from './modules/crons/crons.module';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CronsModule } from './modules/crons/crons.module';
     GroupsModule,
     TasksModule,
     CronsModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

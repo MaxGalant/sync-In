@@ -5,7 +5,6 @@ import {
   IEventsRepository,
 } from './repository/event.repository';
 import { ErrorDto, SuccessResponseDto } from '../../../utills';
-import { DataSource } from 'typeorm';
 
 @Injectable()
 export class EventsService {
@@ -14,28 +13,19 @@ export class EventsService {
   constructor(
     @InjectRepository(EventsRepository)
     private readonly eventsRepository: IEventsRepository,
-    private readonly dataSource: DataSource,
   ) {}
 
   async create(): Promise<SuccessResponseDto | ErrorDto> {
     this.logger.log('Creating a new event');
-
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    const { manager } = queryRunner;
-
-    await queryRunner.connect();
-
-    await queryRunner.startTransaction();
 
     try {
       const currentDate = new Date();
 
       currentDate.setHours(currentDate.getHours() + 1);
 
-      // const createData = { started_at: currentDate };
+      const createData = { started_at: currentDate };
 
-      // const event = await this.eventsRepository.saveEvent(createData, manager);
+      const event = await this.eventsRepository.saveEvent(createData);
 
       return {
         statusCode: 200,

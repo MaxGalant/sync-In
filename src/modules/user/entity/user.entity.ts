@@ -9,6 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Friend } from '../../friends/entity';
 import { GroupUser } from '../../groups/entity';
+import { Media } from '../../media/entity/media.entity';
 
 @Entity()
 export class User {
@@ -49,6 +50,9 @@ export class User {
 
   @OneToMany(() => Friend, (friend) => friend.user)
   friends: Friend[];
+
+  @OneToMany(() => Media, (media) => media.user)
+  media: Media[];
 
   @OneToMany(() => GroupUser, (groupUser) => groupUser.user)
   groups: GroupUser[];

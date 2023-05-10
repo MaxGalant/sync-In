@@ -29,7 +29,6 @@ export class CronsService {
   ) {}
 
   @Cron('0 * * * *')
-  @Timeout(0)
   async createEvent() {
     const date = new Date();
 
@@ -74,7 +73,7 @@ export class CronsService {
 
       const tasksIndexes = [];
 
-      while (tasksIndexes.length < 6) {
+      while (tasksIndexes.length < numRandoms) {
         const randomIndex = Math.floor(Math.random() * tasks.length);
 
         if (!tasksIndexes.includes(randomIndex)) {
@@ -82,13 +81,15 @@ export class CronsService {
         }
       }
 
-      const days = Array.from({ length: 6 }).map((taskItem, index) => {
+      const days = Array.from({ length: numRandoms }).map((taskItem, index) => {
         return {
           number: weekDays[index],
           task: tasks[tasksIndexes[index]],
           week,
         };
       });
+
+      console.log(days);
 
       await this.daysRepository.saveDays(days);
 
@@ -101,7 +102,8 @@ export class CronsService {
     await Promise.all(result);
   }
 
-  @Cron('*/10 * * * *')
+  // @Cron('*/10 * * * *')
+  @Timeout(0)
   async setEventToDays() {
     const date = new Date();
 
@@ -117,8 +119,12 @@ export class CronsService {
 
     const daysIds = days.map((day) => day.id);
 
-    await this.daysRepository.updateDays(daysIds, { event });
+    if (days.length) {
+      await this.daysRepository.updateDays(daysIds, { event });
 
-    await this.eventsRepository.updateState(event.id);
+      await this.eventsRepository.updateState(event.id);
+    }
+
+    return;
   }
 }

@@ -8,6 +8,7 @@ export interface IDaysRepository {
   saveDays(createData: any[]): Promise<Day[]>;
   updateDays(ids: string[], updateData: any): Promise<UpdateResult>;
   findManyByDayAndIfEventNull(day: number): Promise<Day[]>;
+  findOneDay(id: string): Promise<Day>;
 }
 
 @Injectable()
@@ -32,7 +33,7 @@ export class DaysRepository extends Repository<Day> implements IDaysRepository {
 
     return this.save(createData);
   }
-  updateDays(ids: string[], updateData: any): Promise<UpdateResult> {
+  async updateDays(ids: string[], updateData: any): Promise<UpdateResult> {
     this.logger.log(`Update days `);
 
     return this.update(ids, updateData);
@@ -42,5 +43,11 @@ export class DaysRepository extends Repository<Day> implements IDaysRepository {
     this.logger.log(`Finding days where day:${day} and event- null`);
 
     return this.find({ where: { number: day, event: null } });
+  }
+
+  async findOneDay(id: string): Promise<Day> {
+    this.logger.log(`Finding day`);
+
+    return this.findOne({ where: { id } });
   }
 }
