@@ -55,17 +55,19 @@ export class GroupsRepository
   ): Promise<Group> {
     this.logger.log(`Finding group where id:${id} user with id:${userId}`);
 
-    return this.findOne({
-      where: {
-        id,
-        users: { user: { id: userId }, status: GroupUserStatusEnum.ACCEPTED },
-      },
-      relations: ['weeks', 'weeks.tasks'],
-      order: {
-        weeks: {
-          started_at: 'DESC',
-        },
-      },
-    });
+    const currentDate = new Date();
+
+    currentDate.setDate(currentDate.getDate() - currentDate.getDay());
+
+    return this.createQueryBuilder('group')
+      .leftJoinAndSelect('group.weeks', 'week', 'week.started_at>=:date', {
+        date: currentDate,
+      })
+      .leftJoinAndSelect('week.tasks', 'task')
+      .leftJoinAndSelect('week.days', 'day', "day.is_finished='true'")
+      .leftJoinAndSelect('day.media', 'media')
+      .leftJoinAndSelect('media.user', 'user')
+      .where('group.id = :id', { id })
+      .getOne();
   }
 }

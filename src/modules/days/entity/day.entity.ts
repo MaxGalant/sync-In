@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToOne,
   OneToMany,
@@ -50,11 +49,10 @@ export class Day {
   @OneToOne(() => Task, (task) => task.day)
   task: Task;
 
-  @OneToMany(() => Media, (media) => media.user)
+  @OneToMany(() => Media, (media) => media.day)
   media: Media[];
 
-  @OneToOne(() => Event)
-  @JoinColumn()
+  @ManyToOne(() => Event)
   event: Event;
 
   @ManyToOne(() => Week, (week) => week.days)

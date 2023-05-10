@@ -258,10 +258,20 @@ export class GroupsService implements IGroupsService {
         return new ErrorDto(404, 'Not Found', `Group doesn't exists`);
       }
 
+      const isAddMedia =
+        group.weeks.length &&
+        group.weeks &&
+        group.weeks[0].days.length &&
+        group.weeks[0].days[0].media.length
+          ? group.weeks[0].days[0].media.some(
+              (mediaItem) => mediaItem.user.id === userId,
+            )
+          : false;
+
       return {
         statusCode: 200,
         message: 'Groups requests was successfully fetched',
-        data: group,
+        data: { ...group, isAddMedia },
       };
     } catch (error) {
       this.logger.error(

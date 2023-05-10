@@ -89,8 +89,6 @@ export class CronsService {
         };
       });
 
-      console.log(days);
-
       await this.daysRepository.saveDays(days);
 
       await this.weeksRepository.updateStatus(
@@ -123,6 +121,8 @@ export class CronsService {
       await this.daysRepository.updateDays(daysIds, { event });
 
       await this.eventsRepository.updateState(event.id);
+
+      await this.daysRepository.updateDaysWithFilter(event.id);
     }
 
     return;

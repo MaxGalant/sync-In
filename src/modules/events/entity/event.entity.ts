@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
@@ -24,6 +24,6 @@ export class Event {
   })
   started_at: Date;
 
-  @OneToOne(() => Day, (day) => day.event)
-  day: Day;
+  @OneToMany(() => Day, (day) => day.event)
+  day: Day[];
 }
