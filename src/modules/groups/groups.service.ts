@@ -108,14 +108,7 @@ export class GroupsService implements IGroupsService {
         );
 
         const usersArr = users.map(
-          (user) =>
-            new GroupUser(
-              user,
-              group,
-              user.id === userId
-                ? GroupUserStatusEnum.ACCEPTED
-                : GroupUserStatusEnum.PENDING,
-            ),
+          (user) => new GroupUser(user, group, GroupUserStatusEnum.ACCEPTED),
         );
         await this.groupsUsersRepository.saveGroupUser(usersArr, manager);
       }
